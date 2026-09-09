@@ -56,8 +56,21 @@ export const Widget = React.memo(() => {
 
   if (!visible || !bars.length) return null;
 
+  // Cava emits all-zero frames when no audio is playing: keep the widget
+  // mounted but collapsed, so it can animate back on the next frame.
+  const idle = bars.every((value) => value === 0);
+  const classes = Utils.classNames("audio-viz", {
+    "audio-viz--idle": idle,
+  });
+
   return (
-    <div className="audio-viz">
+    <div
+      className={classes}
+      style={{
+        // Expanded max-width for the collapse transition: bars plus padding.
+        "--audio-viz-max-width": `${bars.length * 5 - 2 + 20}px`,
+      }}
+    >
       {bars.map((value, i) => (
         <span
           key={i}

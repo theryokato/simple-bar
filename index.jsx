@@ -235,14 +235,14 @@ function render({ output, error }) {
           <Music.Widget />
           <Mpd.Widget />
           <GitHub.Widget />
+          <Notifications.Widget />
+          <NextMeeting.Widget />
           <Weather.Widget />
           <Netstats.Widget />
           <Cpu.Widget />
           <Gpu.Widget />
           <Memory.Widget />
           <Battery.Widget />
-          <Notifications.Widget />
-          <NextMeeting.Widget />
           <Mic.Widget />
           <Sound.Widget />
           <ViscosityVPN.Widget />
