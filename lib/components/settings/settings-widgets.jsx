@@ -21,6 +21,8 @@ const settingsKeys = {
   musicWidget: "musicWidgetOptions",
   netstatsWidget: "netstatsWidgetOptions",
   nextMeetingWidget: "nextMeetingWidgetOptions",
+  nowPlayingWidget: "nowPlayingWidgetOptions",
+  airpodsWidget: "airpodsWidgetOptions",
   notificationsWidget: "notificationsWidgetOptions",
   soundWidget: "soundWidgetOptions",
   spotifyWidget: "spotifyWidgetOptions",

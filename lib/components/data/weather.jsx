@@ -13,6 +13,39 @@ const { React } = Uebersicht;
 
 const DEFAULT_REFRESH_FREQUENCY = 1000 * 60 * 30; // Default refresh frequency set to 30 minutes
 
+// WMO weather interpretation codes mapped to descriptions whose wording keeps
+// the substring matching in getIcon() working (rain/snow/fog/cloud/storm)
+const WMO_DESCRIPTIONS = {
+  0: "Sunny",
+  1: "Mainly sunny",
+  2: "Partly cloudy",
+  3: "Cloudy",
+  45: "Fog",
+  48: "Rime fog",
+  51: "Light rain",
+  53: "Light rain",
+  55: "Light rain",
+  56: "Light rain",
+  57: "Light rain",
+  61: "Light rain",
+  63: "Rain",
+  65: "Heavy rain",
+  66: "Rain",
+  67: "Rain",
+  71: "Light snow",
+  73: "Snow",
+  75: "Heavy snow",
+  77: "Snow",
+  80: "Rain showers",
+  81: "Rain showers",
+  82: "Violent rain showers",
+  85: "Snow showers",
+  86: "Snow showers",
+  95: "Thunderstorm",
+  96: "Thunderstorm with hail",
+  99: "Thunderstorm with hail",
+};
+
 /**
  * Weather widget component
  */
@@ -41,9 +74,7 @@ export const Widget = React.memo(() => {
 
   const [state, setState] = React.useState();
   const [loading, setLoading] = React.useState(visible);
-  const location = React.useRef(
-    visible && customLocation.length ? customLocation : undefined,
-  );
+  const geocodeCache = React.useRef({});
 
   /**
    * Resets the widget state and loading status
@@ -54,71 +85,77 @@ export const Widget = React.memo(() => {
   };
 
   /**
-   * Fetches weather data from wttr.in
+   * Fetches weather data from Open-Meteo, using the device's current location
+   * (re-acquired on every refresh) or a geocoded custom location
    */
   const getWeather = React.useCallback(async () => {
     if (!visible) return;
-    if (!location.current) {
-      const position = await Promise.race([getPosition(), Utils.timeout(5000)]);
-      if (!position) await getWeather();
-      const { city, zip } = position?.address || {};
-      location.current = zip || city;
-      if (!location.current) return setLoading(false);
-    }
     try {
+      let latitude;
+      let longitude;
+      let city;
+
+      if (customLocation.length) {
+        const cached = geocodeCache.current[customLocation];
+        if (cached) {
+          ({ latitude, longitude, city } = cached);
+        } else {
+          const geo = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+              customLocation,
+            )}&count=1`,
+          ).then((r) => r.json());
+          const hit = geo.results?.[0];
+          if (!hit) return setLoading(false);
+          latitude = hit.latitude;
+          longitude = hit.longitude;
+          city = hit.name;
+          geocodeCache.current[customLocation] = { latitude, longitude, city };
+        }
+      } else {
+        // Fresh position on every refresh so a moved device stays accurate
+        const position = await Promise.race([getPosition(), Utils.timeout(5000)]);
+        if (!position) return setLoading(false);
+        // Übersicht's geolocation delivers { position: GeolocationPosition,
+        // address: { city, zip, ... } } — not a bare GeolocationPosition
+        latitude = position.position.coords.latitude;
+        longitude = position.position.coords.longitude;
+        city = position.address?.city || position.address?.zip || "";
+      }
+
+      const temperatureUnit = unit === "C" ? "celsius" : "fahrenheit";
       const result = await fetch(
-        `https://wttr.in/${location.current}?format=j1`,
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,is_day&daily=sunrise,sunset&forecast_days=1&timezone=auto&temperature_unit=${temperatureUnit}`,
       );
       const data = await result.json();
-      setState({ location: location.current, data });
-    } catch  {
+      setState({ location: city, data });
+    } catch {
       // eslint-disable-next-line no-console
-      console.error("Error while fetching weather")
+      console.error("Error while fetching weather");
     }
     setLoading(false);
-  }, [visible, location]);
+  }, [visible, customLocation, unit]);
 
   useServerSocket("weather", visible, getWeather, resetWidget, setLoading);
   useWidgetRefresh(visible, getWeather, refresh);
 
   if (loading) return <DataWidgetLoader.Widget className="weather" />;
-  if (!state || !state.data.current_condition) return null;
+  if (!state || !state.data.current) return null;
 
-  const {
-    temp_C: tempC,
-    temp_F: tempF,
-    weatherDesc,
-  } = state.data.current_condition[0];
-  const temperature = unit === "C" ? tempC : tempF;
-  const wttrUnitParam = unit === "C" ? "?m" : "?u";
+  const { current, daily } = state.data;
+  const temperature = Math.round(current.temperature_2m);
 
-  const description = weatherDesc[0].value;
+  const description = WMO_DESCRIPTIONS[current.weather_code] ?? "Sunny";
+  const atNight = current.is_day === 0;
 
-  const { astronomy } = state.data.weather[0];
-  const sunriseData = astronomy[0].sunrise.replace(" AM", "").split(":");
-  const sunsetData = astronomy[0].sunset.replace(" PM", "").split(":");
-
-  const now = new Date();
   const nowIntervalStart = new Date();
   nowIntervalStart.setHours(nowIntervalStart.getHours() - 1);
   const nowIntervalStop = new Date();
   nowIntervalStop.setHours(nowIntervalStop.getHours() + 1);
-  const sunriseTime = new Date();
-  sunriseTime.setHours(
-    parseInt(sunriseData[0], 10),
-    parseInt(sunriseData[1], 10),
-    0,
-    0,
-  );
-  const sunsetTime = new Date();
-  sunsetTime.setHours(
-    parseInt(sunsetData[0], 10) + 12,
-    parseInt(sunsetData[1], 10),
-    0,
-    0,
-  );
-
-  const atNight = sunriseTime >= now || now >= sunsetTime;
+  // Open-Meteo returns local ISO times ("2026-09-09T06:45"), which the JS
+  // Date parser treats as local time
+  const sunriseTime = new Date(daily.sunrise[0]);
+  const sunsetTime = new Date(daily.sunset[0]);
 
   const Icon = getIcon(description, atNight);
   const label = getLabel(state.location, temperature, unit, hideLocation);
@@ -136,7 +173,7 @@ export const Widget = React.memo(() => {
     Utils.clickEffect(e);
     setLoading(true);
     getWeather();
-    Utils.notification("Refreshing forecast from wttr.in...", pushMissive);
+    Utils.notification("Refreshing forecast from Open-Meteo...", pushMissive);
   };
 
   const classes = Utils.classNames("weather", {
@@ -148,8 +185,6 @@ export const Widget = React.memo(() => {
     <DataWidget.Widget
       classes={classes}
       Icon={showIcon ? Icon : null}
-      href={`https://wttr.in/${state.location}${wttrUnitParam}`}
-      onClick={(e) => openWeather(e, pushMissive)}
       onRightClick={onRightClick}
       disableSlider
     >
@@ -188,19 +223,11 @@ function getIcon(description, atNight) {
  * @returns {string} - The label text
  */
 function getLabel(location, temperature, unit, hideLocation) {
-  if (!location) return "Fetching...";
+  // Without a resolved city name (e.g. reverse geocoding failed) fall back to
+  // showing just the temperature instead of "Fetching..." forever
+  if (!location) return `${temperature}°${unit}`;
   if (hideLocation) return `${temperature}°${unit}`;
   return `${location}, ${temperature}°${unit}`;
-}
-
-/**
- * Opens the weather forecast in a new tab
- * @param {Event} e - The event object
- * @param {Function} pushMissive - Function to push notifications
- */
-function openWeather(e, pushMissive) {
-  Utils.clickEffect(e);
-  Utils.notification("Opening forecast from wttr.in...", pushMissive);
 }
 
 /**

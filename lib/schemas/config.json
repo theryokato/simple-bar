@@ -5,14 +5,20 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
+    "$schema": {
+      "type": "string"
+    },
     "global": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "theme": {
           "type": "string",
-          "enum": ["auto", "dark", "light"],
+          "enum": [
+            "auto",
+            "dark",
+            "light"
+          ],
           "description": "Theme to use"
         },
         "floatingBar": {
@@ -85,17 +91,27 @@
         },
         "windowManager": {
           "type": "string",
-          "enum": ["yabai", "aerospace"],
+          "enum": [
+            "yabai",
+            "aerospace"
+          ],
           "description": "Determine the window manager used by simple-bar to display spaces & processes: yabai or aerospace"
         },
         "shell": {
           "type": "string",
-          "enum": ["sh", "bash", "dash"],
+          "enum": [
+            "sh",
+            "bash",
+            "dash"
+          ],
           "description": "Depending on your preference you can choose between these 3 shell for all simple-bar scripts execution: sh, bash, dash"
         },
         "terminal": {
           "type": "string",
-          "enum": ["Terminal", "iTerm2"],
+          "enum": [
+            "Terminal",
+            "iTerm2"
+          ],
           "description": "Define the terminal used by simple-bar to run commands"
         },
         "slidingAnimationPace": {
@@ -294,7 +310,7 @@
         },
         "customAeroSpaceDisplayIndexes": {
           "type": "object",
-          "description": "[AeroSpace] Allow display numbering override in case of monitor numbering mismatch between AeroSpace and Übersicht",
+          "description": "[AeroSpace] Allow display numbering override in case of monitor numbering mismatch between AeroSpace and \u00dcbersicht",
           "patternProperties": {
             "^\\d+$": {
               "type": "number",
@@ -407,6 +423,14 @@
         "nextMeetingWidget": {
           "type": "boolean",
           "description": "Hide or show the next meeting widget"
+        },
+        "nowPlayingWidget": {
+          "type": "boolean",
+          "description": "Hide or show the now playing widget"
+        },
+        "airpodsWidget": {
+          "type": "boolean",
+          "description": "Hide or show the AirPods battery widget"
         }
       }
     },
@@ -458,7 +482,10 @@
         },
         "unit": {
           "type": "string",
-          "enum": ["C", "F"],
+          "enum": [
+            "C",
+            "F"
+          ],
           "description": "The temperature unit to use (C or F)"
         },
         "hideLocation": {
@@ -527,7 +554,11 @@
         },
         "cpuMonitorApp": {
           "type": "string",
-          "enum": ["Activity Monitor", "Top", "None"],
+          "enum": [
+            "Activity Monitor",
+            "Top",
+            "None"
+          ],
           "description": "Define the opened app on widget click: Activity Monitor, Top or None"
         }
       }
@@ -562,7 +593,9 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "refreshFrequency": { "type": "number" },
+        "refreshFrequency": {
+          "type": "number"
+        },
         "showOnDisplay": {
           "type": "string",
           "description": "The displays on which the process will be displayed. Add a list of indexes (for example: \"1,2\"). Leave blank to display the widget on every spaces"
@@ -577,7 +610,11 @@
         },
         "memoryMonitorApp": {
           "type": "string",
-          "enum": ["Activity Monitor", "Top", "None"],
+          "enum": [
+            "Activity Monitor",
+            "Top",
+            "None"
+          ],
           "description": "Define the opened app on widget click: Activity Monitor, Top or None"
         }
       }
@@ -826,7 +863,10 @@
         },
         "denomination": {
           "type": "string",
-          "enum": ["usd", "eur"],
+          "enum": [
+            "usd",
+            "eur"
+          ],
           "description": "The displayed denomination, usd or eur"
         },
         "identifiers": {
@@ -987,8 +1027,14 @@
           "type": "string",
           "description": "The binary path required to run mpc commands from the widget"
         },
-        "mpdPort": { "type": "string", "description": "The port used by MPD" },
-        "mpdHost": { "type": "string", "description": "The host used by MPD" },
+        "mpdPort": {
+          "type": "string",
+          "description": "The port used by MPD"
+        },
+        "mpdHost": {
+          "type": "string",
+          "description": "The host used by MPD"
+        },
         "mpdFormatString": {
           "type": "string",
           "description": "The format string used by MPC"
@@ -1152,6 +1198,42 @@
         "styles": {
           "type": "string",
           "description": "Your custom css styles here"
+        }
+      }
+    },
+    "nowPlayingWidgetOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "refreshFrequency": {
+          "type": "number",
+          "description": "The refresh frequency of this widget in milliseconds"
+        },
+        "showOnDisplay": {
+          "type": "string",
+          "description": "The displays on which the process will be displayed. Add a list of indexes (for example: \"1,2\"). Leave blank to display the widget on every spaces"
+        },
+        "showIcon": {
+          "type": "boolean",
+          "description": "Show or hide the widget icon"
+        }
+      }
+    },
+    "airpodsWidgetOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "refreshFrequency": {
+          "type": "number",
+          "description": "The refresh frequency of this widget in milliseconds"
+        },
+        "showOnDisplay": {
+          "type": "string",
+          "description": "The displays on which the process will be displayed. Add a list of indexes (for example: \"1,2\"). Leave blank to display the widget on every spaces"
+        },
+        "showIcon": {
+          "type": "boolean",
+          "description": "Show or hide the widget icon"
         }
       }
     }

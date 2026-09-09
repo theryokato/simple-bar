@@ -30,6 +30,8 @@ import * as Stock from "./lib/components/data/stock.jsx";
 import * as Music from "./lib/components/data/music.jsx";
 import * as Mpd from "./lib/components/data/mpd.jsx";
 import * as BrowserTrack from "./lib/components/data/browser-track.jsx";
+import * as NowPlaying from "./lib/components/data/now-playing.jsx";
+import * as AirPods from "./lib/components/data/airpods.jsx";
 import * as Notifications from "./lib/components/data/notifications.jsx";
 import * as NextMeeting from "./lib/components/data/next-meeting.jsx";
 import * as Specter from "./lib/components/data/specter.jsx";
@@ -131,6 +133,8 @@ Utils.injectStyles("simple-bar-index-styles", [
   Music.styles,
   Mpd.styles,
   BrowserTrack.styles,
+  NowPlaying.styles,
+  AirPods.styles,
   Notifications.styles,
   NextMeeting.styles,
   Specter.styles,
@@ -228,6 +232,7 @@ function render({ output, error }) {
           <UserWidgets />
           <Zoom.Widget />
           <BrowserTrack.Widget />
+          <NowPlaying.Widget />
           <Spotify.Widget />
           <YouTubeMusic.Widget />
           <Crypto.Widget />
@@ -237,17 +242,18 @@ function render({ output, error }) {
           <GitHub.Widget />
           <Notifications.Widget />
           <NextMeeting.Widget />
-          <Weather.Widget />
+          <AirPods.Widget />
           <Netstats.Widget />
           <Cpu.Widget />
           <Gpu.Widget />
           <Memory.Widget />
-          <Battery.Widget />
+          <Weather.Widget />
+          <Keyboard.Widget />
           <Mic.Widget />
           <Sound.Widget />
           <ViscosityVPN.Widget />
           <Wifi.Widget />
-          <Keyboard.Widget />
+          <Battery.Widget />
           <DateDisplay.Widget />
           <Time.Widget />
         </div>
