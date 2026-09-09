@@ -41,7 +41,10 @@ export const Widget = React.memo(() => {
     if (!visible) return;
     const output = await Utils.cachedRun(
       `sh ./simple-bar/lib/scripts/cava-viz.sh "${cavaBinaryPath || DEFAULT_CAVA_BINARY_PATH}" "${cavaConfigPath || DEFAULT_CAVA_CONFIG_PATH}"`,
-      refresh,
+      // Cache timeout must be shorter than the poll interval: with TTL ===
+      // refresh, clock drift makes ~half the ticks resolve as cache hits,
+      // halving the effective frame rate.
+      refresh / 2,
     );
     // Frames are semicolon-separated values ranging from 0 to 100
     const values = Utils.cleanupOutput(output)
