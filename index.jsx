@@ -34,6 +34,7 @@ import * as Notifications from "./lib/components/data/notifications.jsx";
 import * as NextMeeting from "./lib/components/data/next-meeting.jsx";
 import * as Specter from "./lib/components/data/specter.jsx";
 import * as Graph from "./lib/components/data/graph.jsx";
+import * as AudioViz from "./lib/components/data/audio-viz.jsx";
 import * as DataWidgetLoader from "./lib/components/data/data-widget-loader.jsx";
 import * as DataWidget from "./lib/components/data/data-widget.jsx";
 import * as SideIcon from "./lib/components/side-icon.jsx";
@@ -134,6 +135,7 @@ Utils.injectStyles("simple-bar-index-styles", [
   NextMeeting.styles,
   Specter.styles,
   Graph.styles,
+  AudioViz.styles,
   DataWidgetLoader.styles,
   settings.customStyles.styles,
   SideIcon.styles,
@@ -220,6 +222,7 @@ function render({ output, error }) {
             </AerospaceContextProvider>
           )}
         </React.Suspense>
+        <AudioViz.Widget />
         <Settings.Wrapper />
         <div className="simple-bar__data">
           <UserWidgets />

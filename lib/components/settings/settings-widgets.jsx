@@ -7,6 +7,7 @@ import SettingsInner from "./settings-inner.jsx";
 const { React } = Uebersicht;
 
 const settingsKeys = {
+  audioVizWidget: "audioVizWidgetOptions",
   batteryWidget: "batteryWidgetOptions",
   browserTrackWidget: "browserTrackWidgetOptions",
   cpuWidget: "cpuWidgetOptions",
